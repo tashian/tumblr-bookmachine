@@ -1,8 +1,9 @@
 Bookmachine
 ===========
 
-Bookmachine takes your Pinboard links and makes paperback books of them: one
-6"x9" book a year.
+Bookmachine takes your Tumblr posts and makes paperback books of them: one 6"x9" book.
+It is based heavily on Tom Armitage's pinboard-bookmachine: https://github.com/infovore/pinboard-bookmachine
+However, it uses MongoDB instead of SQLite to make importing super easy.
 
 Installation
 ------------
@@ -12,13 +13,6 @@ Bookmachine is a Sinatra app. Check out the code and then run
     bundle install
 
 to set up all dependencies. You'll need Ruby/Bundler, obviously.
-
-You'll need to create the SQLite database, next:
-
-    rake db:migrate
-
-(Note that you might need to prefix all rake commands, and rackup, with `bundle
-exec`. Because bundler, alas.)
 
 You will also need PrinceXML. Get that from http://www.princexml.com/download/ and install
 the free version as per instructions. "prince" should be in your path before
