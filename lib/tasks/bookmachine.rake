@@ -1,66 +1,51 @@
 STDOUT.sync = true
 
+TUMBLR_KEY = 'YOUR_API_KEY'
+TUMBLR_BLOG = 'staff.tumblr.com'
+TUMBLR_URL = "http://api.tumblr.com/v2/blog/#{TUMBLR_BLOG}"
+
 task :default => "ingest:all"
 
 task :environment do
   require 'rubygems'
   require 'sinatra'
-  require 'sinatra/activerecord'
   require 'nokogiri'
   require 'bookmachine'
+  require 'httparty'
+  require 'pp'
 end
 
-namespace :ingest do
-  task :all => [:ingest_pinboard, :tidy_utm, :cache_years]
+namespace :fetch do
 
-  desc "Ingest all pinboard bookmarks"
-  task :ingest_pinboard => :environment do
-    puts "Ingesting bookmarks"
-    file = File.read("data/pinboard_all.xml")
-    doc = Nokogiri::XML(file)
-    doc.css("post").each do |post|
-      b = Bookmark.new
-      b.href = post.attr("href")
-      b.description = post.attr("description")
-      b.extended = post.attr("extended")
-      b.bookmark_hash = post.attr("hash")
-      b.meta = post.attr("meta")
-      b.bookmarked_at = Time.parse(post.attr("time"))
-      b.raw_tags = post.attr("tag")
-      b.created_at = Time.now
-      
-      b.save
-      print "."
-    end
-  puts
-  end
+  desc "Fetch posts from tumblr"
+  task :tumblr => :environment do
 
-  desc "Tidy utm data from bookmarks."
-  task :tidy_utm => :environment do
-    puts "Removing analytics tracking query strings."
-    bookmarks = Bookmark.all
-    bookmarks.each do |bookmark|
-      if bookmark.href =~ /utm/
-        bookmark.href = bookmark.href.gsub(/\?utm_source.*/, "")
-        bookmark.save
-        print "."
-      else
-        print "x"
+    # How many posts are there?
+    response = HTTParty.get(TUMBLR_URL + '/info?api_key=' + TUMBLR_KEY)
+    info = JSON.parse(response.body)['response']['blog']
+    posts = info['posts']
+    pages = (posts / 20) + 1
+    puts "#{posts} posts, #{pages} pages of 20"
+
+    all_posts = []
+
+    # Fix timestamps for mongo
+    File.open("data/posts.json", 'w') do |f|
+      pages.times do |i|
+        offset = i*20
+        u = TUMBLR_URL + '/posts?offset=' + offset.to_s + '&limit=20&api_key=' + TUMBLR_KEY
+        r = HTTParty.get(u)
+        posts = JSON.parse(r.body)['response']['posts']
+        posts.each do |post|
+          post['created_at'] = {"$date" => post.delete('timestamp')}
+          f.write(post.to_json + "\n")
+        end
       end
-    end
-    puts     
-  end
 
-  desc "Cache years for bookmarks"
-  task :cache_years => :environment do
-    bookmarks = Bookmark.all
-    bookmarks.each do |bookmark|
-      year = Year.find_or_create_by_year_string(bookmark.year)
-      bookmark.year = year
-      bookmark.save
     end
-  end
 
+    puts "Now import data/posts.json into mongodb: mongoimport -d tumblr-bookmachine -c posts data/posts.json"
+  end
 end
 
 namespace :publish do
