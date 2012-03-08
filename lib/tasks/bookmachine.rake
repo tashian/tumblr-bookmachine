@@ -1,18 +1,15 @@
 STDOUT.sync = true
 
 TUMBLR_KEY = 'YOUR_API_KEY'
-TUMBLR_BLOG = 'staff.tumblr.com'
+TUMBLR_BLOG = 'learningrevolution.tumblr.com'
 TUMBLR_URL = "http://api.tumblr.com/v2/blog/#{TUMBLR_BLOG}"
 
-task :default => "ingest:all"
+task :default => "fetch:tumblr"
 
 task :environment do
-  require 'rubygems'
-  require 'sinatra'
-  require 'nokogiri'
-  require 'bookmachine'
-  require 'httparty'
-  require 'pp'
+  require 'bundler'
+
+  Bundler.require
 end
 
 namespace :fetch do
@@ -37,37 +34,22 @@ namespace :fetch do
         r = HTTParty.get(u)
         posts = JSON.parse(r.body)['response']['posts']
         posts.each do |post|
-          post['created_at'] = {"$date" => post.delete('timestamp')}
+          post['created_at'] = {"$date" => post.delete('timestamp') * 1000} # s => ms since epoch
           f.write(post.to_json + "\n")
         end
+        print '.'
       end
-
+      print "\n"
     end
 
-    puts "Now import data/posts.json into mongodb: mongoimport -d tumblr-bookmachine -c posts data/posts.json"
+    puts "Importing JSON data to mongodb"
+    `mongoimport -d tumblr-bookmachine -c posts data/posts.json`
   end
 end
 
 namespace :publish do
-  desc "Render all books as PDFs to app root."
+  desc "Render the book as PDF to app root."
   task :all => :environment do
-    years = Year.all
-    years.each do |y|
-      year = y.year_string
-      `prince http://localhost:9292/year/#{year} -o #{year}.pdf`
-    end
-  end
-
-  desc "Render a specific year"
-  task :year => :environment do
-    if ENV["YEAR"]
-      if Year.find_by_year_string(ENV["YEAR"])
-        `prince http://localhost:9292/year/#{ENV['YEAR']} -o #{ENV['YEAR']}.pdf`
-      else
-        puts "That year could not be found."
-      end
-    else
-      puts "Please specify a year eg YEAR=1999"
-    end
+      `prince http://localhost:9292/all -o all.pdf`
   end
 end

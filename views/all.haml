@@ -11,6 +11,7 @@
     %br
     Set in Minion Pro and Helvetica Neue Light.
     Data extracted from Tumblr.
+    %br
     Special thanks to Tom Armitage for pinboard-bookmachine.
     %br
     http://learningrevolution.tumblr.com
@@ -36,21 +37,51 @@
         - if day_collection.any?
           .day_container
             %h3.day= format_date(day_collection.first.created_at)
-            %ul.bookmarks
+            %ul.posts
               - for post in day_collection
-                %li.bookmark
-                  .qr
-                    %img{:src => post.qr_for_url}
-                  .bookmark_itself
-                    %h4= h post.description
-                    .href= h post.url
-                    .desc= h post.body
-                    .tags 
-                      -output = []
-                      - post.tags.each do |t|
-                        - unique_id, new_previous_tags = id_for_tag(t, @previous_tags)
-                        - output << "<span id='#{unique_id}'>#{t}</span>"
-                      = output.join(", ")
+                %li.post{:class => post.type}
+                  - if post.type == 'link'
+                    .qr
+                      %img{src: qr_for(post.url)}
+                    .post_itself
+                      %h4= post.title
+                      .href= h post.url
+                      .desc= post.description
+                      .tags 
+                        -output = []
+                        - post.tags.each do |t|
+                          - unique_id, new_previous_tags = id_for_tag(t, @previous_tags)
+                          - output << "<span id='#{unique_id}'>#{t}</span>"
+                        = output.join(", ")
+                  - if post.type == 'quote'
+                    - if post['source_url']
+                      .qr
+                        %img{src: qr_for(post.source_url)}
+                    .post_itself
+                      %blockquote= post.text
+                      .source= post.source
+                  - if post.type == 'photo'
+                    .qr
+                      %img{src: qr_for(post.link_url || post.post_url)}
+                    .post_itself
+                      %h4= post.source_title
+                      - post.photos.each do |photo|
+                        %img{src: photo['original_size']['url']}
+                        .caption= photo['caption']
+                      .desc= post.caption
+                  - if post.type == 'text'
+                    .qr
+                      %img{src: qr_for(post.post_url)}
+                    .post_itself
+                      %h4= post.title
+                      .desc= post.body 
+                  - if post.type == 'video'
+                    .qr
+                      %img{src: qr_for(post.permalink_url)}
+                    .post_itself
+                      .caption= post.caption
+                      - if post['thumbnail_url']
+                        %img{src: post['thumbnail_url']}
 
 #index
   %h2 Tag Index

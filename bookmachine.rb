@@ -1,3 +1,10 @@
+require 'bundler'
+Bundler.require
+
+#these two are the application broken out a bit.
+require 'helpers'
+require 'models'
+
 set :haml, :format => :html5
 
 get '/stylesheets/:stylesheet.css' do
@@ -5,9 +12,9 @@ get '/stylesheets/:stylesheet.css' do
 end
 
 get '/all' do
-  @posts = Post.all
-  @posts_by_month = @posts.group_by(&:month)
+  @posts = Post.all(:order => :created_at.asc)
+  @posts_by_month = @posts.group_by(&:month_with_year)
 
-  @title = "My book"
+  @title = "Rahmin &amp; Carl Enterprises"
   haml :all, :layout => :print
 end

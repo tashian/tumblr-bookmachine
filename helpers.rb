@@ -10,6 +10,10 @@ helpers do
     Digest::MD5.hexdigest(string)
   end
 
+  def qr_for(url)
+    url.blank? ? nil : "http://qrcode.kaywa.com/img.php?s=8&d=#{CGI.escape(url)}"
+  end
+
   def id_for_tag(tag_string, previous_tags_array)
     if previous_tags_array.include?(tag_string)
       previous_tags_array << tag_string

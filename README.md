@@ -23,8 +23,7 @@ Usage
 
 Bookmachine has two components: a series of rake tasks, and a Sinatra webapp.
 
-* First, place the output from `https://api.pinboard.in/v1/posts/all` into
-  `data/pinboard_all.xml` . You'll need to authenticate via HTTP Basic.
+* First, set your Tumblr API key up in lib/tasks/bookmachine.rake.
 * Then run `rake`. This will ingest all your links into a database.
 * Now run `rackup`. This will start a Sinatra app on port 9292.
 * If you visit localhost:9292 in a browser, you'll see all the books

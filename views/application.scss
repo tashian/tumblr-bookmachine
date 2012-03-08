@@ -4,6 +4,8 @@ body {
   font-size: 11px;
 }
 
+img { max-width: 300px !important; }
+
 #pre_front {
   page: frontmatter;
   h2 {
@@ -42,11 +44,11 @@ body {
   }
 }
 
-.bookmarks {
+.posts {
   list-style: none;
   margin: 0;
   padding: 0;
-  .bookmark {
+  .post {
     clear: both;
     page-break-inside: avoid;
     /*padding: 0 0 20px 0;*/
@@ -66,7 +68,7 @@ body {
       font-size: 18px;
     }
   }
-  .bookmark:last-child {
+  .post:last-child {
     border-bottom: none;
   }
 }
@@ -180,8 +182,12 @@ h3.day {
   font-style: normal;
 }
 
-.bookmark_itself {
+.post_itself {
   margin-left: 85px;
+}
+
+blockquote {
+  margin-left: 0;
 }
 
 .qr {
