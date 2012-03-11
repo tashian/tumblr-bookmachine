@@ -1,6 +1,6 @@
 STDOUT.sync = true
 
-TUMBLR_KEY = 'YOUR_API_KEY'
+TUMBLR_KEY = 'MyPjY4V9IQCf7JEdtjob1lfxOHM7wg3LSs0AfBbLdvYBHBZR42'
 TUMBLR_BLOG = 'learningrevolution.tumblr.com'
 TUMBLR_URL = "http://api.tumblr.com/v2/blog/#{TUMBLR_BLOG}"
 

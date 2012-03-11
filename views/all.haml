@@ -57,12 +57,13 @@
                     - if post['source_url']
                       .qr
                         %img{src: qr_for(post.source_url)}
+                    - else
+                      .qr
+                        %img{src: qr_for(post.post_url)}
                     .post_itself
                       %blockquote= post.text
                       .source= post.source
                   - if post.type == 'photo'
-                    .qr
-                      %img{src: qr_for(post.link_url || post.post_url)}
                     .post_itself
                       %h4= post.source_title
                       - post.photos.each do |photo|
@@ -70,25 +71,14 @@
                         .caption= photo['caption']
                       .desc= post.caption
                   - if post.type == 'text'
-                    .qr
-                      %img{src: qr_for(post.post_url)}
                     .post_itself
                       %h4= post.title
                       .desc= post.body 
                   - if post.type == 'video'
-                    .qr
-                      %img{src: qr_for(post.permalink_url)}
-                    .post_itself
-                      .caption= post.caption
-                      - if post['thumbnail_url']
-                        %img{src: post['thumbnail_url']}
-
-#index
-  %h2 Tag Index
-  - uniq_tags = @previous_tags.uniq
-  %ul
-    - for tag in uniq_tags.sort
-      %li
-        = tag
-        = @previous_tags.count(tag).times.map {|i| "<a href='##{tag}-#{i+1}'></a>"}.join(", ")
+                    -# .qr
+                    -#   %img{src: qr_for(post.permalink_url)}
+                    -# .post_itself
+                    -#   .caption= post.caption
+                    -#   - if post['thumbnail_url']
+                    -#     %img{src: post['thumbnail_url']}
 
