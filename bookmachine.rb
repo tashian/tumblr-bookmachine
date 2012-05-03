@@ -12,7 +12,7 @@ get '/stylesheets/:stylesheet.css' do
 end
 
 get '/all' do
-  @posts = Post.all(:order => :created_at.asc, :created_at => {'$gt' => Time.utc(2010, 12, 1)})
+  @posts = Post.all(:order => :created_at.asc, :created_at => {'$gt' => Time.utc(2011, 4, 1)})
   @posts_by_month = @posts.group_by(&:month_with_year)
 
   @title = "Rahmin &amp; Carl Enterprises"
